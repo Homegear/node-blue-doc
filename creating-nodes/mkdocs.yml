@@ -1,0 +1,11 @@
+site_name: Creating Node-BLUE Nodes
+theme: readthedocs
+nav:
+    - Home: index.md
+    - Creating your first node: first_node.md
+markdown_extensions:
+    - toc:
+        toc_depth: "2-3"
+    - fontawesome_markdown
+    - admonition
+

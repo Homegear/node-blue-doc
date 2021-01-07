@@ -1,0 +1,10 @@
+site_name: Node-BLUE Documentation
+theme: readthedocs
+nav:
+    - Home: index.md
+markdown_extensions:
+    - toc:
+        toc_depth: "2-3"
+    - fontawesome_markdown
+    - admonition
+
