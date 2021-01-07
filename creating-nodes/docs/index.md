@@ -11,6 +11,8 @@ This guide describes how to write new nodes in each of them. As the Node-BLUE fr
 
 Please click on the sections you want to read:
 
+* [Creating your first node](first_node.md)
+
 ## General guidance
 
 When developing new nodes, please follow the following principles:

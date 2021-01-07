@@ -239,7 +239,7 @@ Add the following content:
 This tells the runtime the name of the module and what node files the module contains.
 
 !!! note
-    In contrast to PHP nodes no `maxThreadCounts` property is needed as JavaScript nodes don't start threads.
+    In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as JavaScript nodes don't start threads.
 
 For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
 
@@ -452,7 +452,7 @@ homegear-node lower-case_spec.js
 
 ## Creating a simple node in Python
 
-This example will show how to create a node in Python that converts message payloads to all lower-case characters.
+This example will show how to create a node in Python that converts message payloads to all lower-case characters. Python nodes are executed in a separate process (one process for each Python node) using the system Python binary.
 
 Create a directory named `node-blue-node-example-lower-case` (the directory name must match the module name) where you will develop your code. Within that directory, create the following files:
 
@@ -473,52 +473,103 @@ Add the following content:
   "description": "A node to convert strings to lower case.",
   "homepage": "https://lower-case.example.com",
   "node-blue": {
-    "maxThreadCounts": {
-      "lower-case": 0
-    },
     "nodes": {
-      "lower-case": "lower-case.php"
+      "lower-case": "lower-case.py"
     }
   }
 }
 ```
 
-This tells the runtime the name of the module and what node files the module contains. `maxThreadCounts` is needed only, when the node starts new threads and is relevant to calculate the number of nodes that can run within one process before reaching the thread limit.
+This tells the runtime the name of the module and what node files the module contains.
+
+!!! note
+    In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as Python nodes run in a seperate process.
 
 For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
 
-**Note**: Please do ***not\*** publish this example node!
+**Note**: Please do **\*not\*** publish this example node!
 
-#### :fa-file: lower-case.php
+#### :fa-file: lower-case.py
 
-```php
-<?php
-declare(strict_types=1);
+```python
+from homegear import Homegear
+import threading
+import sys
+import asyncio
 
-class HomegearNode extends HomegearNodeBase
-{
-    private $hg = null;
+loop = asyncio.get_event_loop()
+nodeInfo = None
+hg = None
 
-    public function __construct()
-    {
-	    $this->hg = new \Homegear\Homegear();
-    }
+startUpComplete = threading.Condition()
 
-    public function input(array $nodeInfo, int $inputIndex, array $msg)
-    {
-        $msg['payload'] = strtolower($msg['payload']);
-        $this->output(0, $msg);
-    }
-}
+# This callback method is called on Homegear variable changes.
+def eventHandler(eventSource, peerId, channel, variableName, value):
+	# Note that the event handler is called by a different thread than the main thread. I. e. thread synchronization is
+	# needed when you access non local variables. We use a condition variable for startup and "run_coroutine_threadsafe()"
+	# for variable events.
+	
+	# When the flows are fully started, "startUpComplete" is set to "true". Wait for this event.
+	if eventSource == "nodeBlue" and peerId == 0 and variableName == "startUpComplete":
+		startUpComplete.acquire()
+		global nodeInfo
+		nodeInfo = value
+		startUpComplete.notify()
+		startUpComplete.release()
+	else:
+		asyncio.run_coroutine_threadsafe(eventHandlerThreadSafe(eventSource, peerId, channel, variableName, value), loop).result()
+	
+async def eventHandlerThreadSafe(eventSource, peerId, channel, variableName, value):
+	# You don't have to worry about threads here and can safely access all variables.
+	pass
+
+# This callback method is called when a message arrives on one of the node's inputs.
+def nodeInput(nodeInfo, inputIndex, message):
+	# Note that the node input handler is called by a different thread than the main thread. I. e. thread synchronization is
+	# needed here. We use "run_coroutine_threadsafe()".
+	asyncio.run_coroutine_threadsafe(nodeInputThreadSafe(nodeInfo, inputIndex, message), loop).result()
+
+async def nodeInputThreadSafe(nodeInfo, inputIndex, msg):
+	# You don't have to worry about threads here and can safely access all variables.
+	hg.nodeOutput(0, {"payload": message.payload.lower()})
+
+async def appstart(loop, hg):
+	while hg.connected():
+		await asyncio.sleep(1)
+	return 0
+
+# hg waits until the connection is established (but for a maximum of 2 seonds).
+# The socket path is passed in sys.argv[1], the node's ID in sys.argv[2]
+hg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput);
+
+# Wait for the flows to start.
+startUpComplete.acquire()
+while hg.connected():
+	if startUpComplete.wait(1) == True:
+		break
+startUpComplete.release()
+
+# The node is now fully started. Start event loop.
+loop.run_until_complete(appstart(loop, hg))
 ```
 
-The node is a PHP class derived from `HomegearNodeBase`. This type of node is called "simple PHP node". The object is newly created by the runtime everytime a message arrives at the node. The runtime then executes the `input` function. Three parameters are passed:
+This node is a normal Python script importing the Homegear module. It uses Unix Domain Sockets (or IPC) to communicate with Homegear. This is why we need to wait until the node is connected to Homegear and Node-BLUE is started before executing any Homegear-specific methods.
 
-1. `$nodeInfo`: Information about the node (like `name`, `id`, ...)
-2. `$inputIndex`: The index of the input the message arrived at
-3. `$msg`: The message object
+The script does the following:
 
-Within `input`, the node changes the payload to lower case, then calls the `output` function to pass the message on in the flow.
+1. It creates a new Homegear object. There are two callback methods passed to the object: `eventHandler` which is called on Homegear variable changes and `nodeInput` which is called whenever a new message arrives.
+2. We wait until we get the `startUpComplete` event from Node-BLUE. The event is sent to the `eventHandler` callback method. In this case we wait for the event in the main thread by using a condition variable. Once the event arrives, the condition variable is notified and the main thread continues.
+3. We use asyncio in this example (but you don't have to). So after Node-BLUE is ready we start the main loop.
+4. Now we are ready to process events from Homegear in `nodeInput` or `eventHandler`. In both callback functions we just call the thread safe variant where we can work with variables without having to worry about thread synchronisation.
+5. In `appstart()` we check, if we are still connected to Homegear. If not, the script exits.
+
+Whenever a message arrives, the `nodeInput` function is executed. Three parameters are passed:
+
+1. `nodeInfo`: Information about the node (like `name`, `id`, ...)
+2. `inputIndex`: The index of the input the message arrived at
+3. `msg`: The message object
+
+Within `input`, the node changes the payload to lower case, then calls the `nodeOutput` function to pass the message on in the flow.
 
 For more information about the runtime part of the node, see here (TODO).
 
@@ -563,7 +614,7 @@ In this example, the node has a single editable property, `name`. Whilst not req
 
 For more information about the editor part of the node, see here (TODO).
 
-### Testing your PHP node in Node-BLUE
+### Testing your Python node in Node-BLUE
 
 Once you have created a basic node module as described above, you can install it into your Node-BLUE runtime.
 
@@ -582,7 +633,7 @@ homegear -e fr
 
 or select `Restart Node-BLUE` from the Node-BLUE UI's menu.
 
-### Unit testing with PHP
+### Unit testing with Python
 
 You can do unit tests with the help of Homegear's RPC methods in combination with the node `unit-test-helper`. This special node makes Homegear save all arriving messages.
 
