@@ -15,6 +15,8 @@ A `package.json` file is used to package it all together as a module.
 
 ## Creating a simple node in PHP
 
+### Implementing the node
+
 This example will show how to create a node in PHP that converts message payloads to all lower-case characters.
 
 Create a directory named `node-blue-node-example-lower-case` (the directory name must match the module name) where you will develop your code. Within that directory, create the following files:
@@ -49,8 +51,6 @@ Add the following content:
 This tells the runtime the name of the module and what node files the module contains. `maxThreadCounts` is needed only, when the node starts new threads and is relevant to calculate the number of nodes that can run within one process before reaching the thread limit.
 
 For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
-
-**Note**: Please do ***not\*** publish this example node!
 
 #### :fa-file: lower-case.php
 
@@ -208,6 +208,8 @@ homegear -e rs lower-case_spec.php
 
 ## Creating a simple node in JavaScript
 
+### Implementing the node
+
 This example will show how to create a node in JavaScript that converts message payloads to all lower-case characters. JavaScript nodes are executed in a separate process (one process for all JavaScript nodes) using Node.js which is compiled into Homegear.
 
 Create a directory named `node-blue-node-example-lower-case` (the directory name must match the module name) where you will develop your code. Within that directory, create the following files:
@@ -242,8 +244,6 @@ This tells the runtime the name of the module and what node files the module con
     In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as JavaScript nodes don't start threads.
 
 For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
-
-**Note**: Please do **\*not\*** publish this example node!
 
 #### :fa-file: lower-case.js
 
@@ -452,6 +452,8 @@ homegear-node lower-case_spec.js
 
 ## Creating a simple node in Python
 
+### Implementing the node
+
 This example will show how to create a node in Python that converts message payloads to all lower-case characters. Python nodes are executed in a separate process (one process for each Python node) using the system Python binary.
 
 Create a directory named `node-blue-node-example-lower-case` (the directory name must match the module name) where you will develop your code. Within that directory, create the following files:
@@ -486,8 +488,6 @@ This tells the runtime the name of the module and what node files the module con
     In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as Python nodes run in a seperate process.
 
 For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
-
-**Note**: Please do **\*not\*** publish this example node!
 
 #### :fa-file: lower-case.py
 
@@ -538,7 +538,7 @@ async def appstart(loop, hg):
 		await asyncio.sleep(1)
 	return 0
 
-# hg waits until the connection is established (but for a maximum of 2 seonds).
+# hg waits until the connection is established (but for a maximum of 2 seconds).
 # The socket path is passed in sys.argv[1], the node's ID in sys.argv[2]
 hg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput);
 
@@ -639,51 +639,55 @@ You can do unit tests with the help of Homegear's RPC methods in combination wit
 
 Using the RPC methods and the `unit-test-helper` node you can create test flows, and then assert that the output is working as expected. For example, to add a unit test to the lower-case node you can add a `test` folder to your node module package containing a file called `lower-case_spec.php`. Placing the file here with this filename enables running automatic unit tests.
 
-#### :fa-file: test/lower-case_spec.php
+#### :fa-file: test/lower-case_spec.py
 
-```php
-<?php
-$hg = new \Homegear\Homegear();
+```python
+from homegear import Homegear
+import sys
+import time
 
-//A flow definition
-$testFlow = [
-	[
-		'id' => 'n1', //Is replaced by addNodesToFlow below
-		'type' => 'lower-case',
-		'wires' => [
-			[['id' => 'n2','port' => 0]] //Output 1 => Input 1
-		]
-	],
-	[
-		'id' => 'n2', //Is replaced by addNodesToFlow below
-		'type' => 'unit-test-helper',
-		'inputs' => 1
-	]
-];
+# hg waits until the connection is established (but for a maximum of 2 seconds).
+# The socket path is passed in sys.argv[1]
+hg = Homegear(sys.argv[1])
 
-//Init - add test flow to Node-BLUE
-$nodeIds = $hg->addNodesToFlow('Unit test' /* tab */, 'unit-test' /* tag */, $testFlow);
-if ($nodeIds === false) die('Error =>  Could not create flow.');
-$n1 = $nodeIds['n1']; //Get node ID of inserted lower-case node
-$n2 = $nodeIds['n2']; //Get node ID of inserted helper node
-//Trigger a Node-BLUE restart
-if ($hg->restartFlows() !== true) die('Error => Could not restart flows.');
-while (!$hg->nodeBlueIsReady()) {
-    //Wait for Node-BLUE to become ready again
-	sleep(1);
-}
+testFlow = [
+    {
+        "id": "n1", # Is replaced by addNodesToFlow below
+        "type": "lower-case",
+        "wires": [
+            [{"id": "n2", "port": 0}] # Output 1 => Input 1
+        ]
+    },
+    {
+        "id": "n2", # Is replaced by addNodesToFlow below
+        "type": "unit-test-helper",
+        "inputs": 1
+    }
+]
 
-//{{{ Perform the actual tests
-$hg->setNodeVariable($n1, 'fixedInput0', ['UpperCase']);
-sleep(1); //Wait for asynchronous processing to finish
-//This returns up to the last 10 input values. The latest value is at index 0.
-$inputHistory = $hg->getNodeVariable($n2, 'inputHistory0');
-assert(count($inputHistory) === 1, new AssertionError('No message was passed on.'));
-assert($inputHistory[0][1]['payload'] === 'uppercase', new AssertionError('Payload is not lower case.'));
-//}}}
+nodeIds = hg.addNodesToFlow("Unit test", "unit-test", testFlow)
+if nodeIds == False:
+    raise SystemError('Error =>  Could not create flow.')
+n1 = nodeIds["n1"] # Get node ID of inserted lower-case node
+n2 = nodeIds["n2"] # Get node ID of inserted helper node
+# Trigger a Node-BLUE restart
+if hg.restartFlows() != True:
+    raise SystemError("Error => Could not restart flows.")
+while not hg.nodeBlueIsReady():
+    # Wait for Node-BLUE to become ready again
+    time.sleep(1)
 
-//Clean up
-$hg->removeNodesFromFlow('Unit test', 'unit-test');
+# {{{ Perform the actual tests
+hg.setNodeVariable(n1, "fixedInput0", {"payload": "UpperCase"})
+time.sleep(1) # Wait for asynchronous processing to finish
+# This returns up to the last 10 input values. The latest value is at index 0.
+inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+assert len(inputHistory) == 1, "No message was passed on."
+assert inputHistory[0][1]['payload'] == "uppercase", "Payload is not lower case."
+# }}}
+
+# Clean up
+hg.removeNodesFromFlow("Unit test", "unit-test")
 ```
 
 These tests check to see that the node is loaded into the runtime correctly, and that it correctly changes the payload to lower case as expected.
@@ -691,5 +695,115 @@ These tests check to see that the node is loaded into the runtime correctly, and
 This test file can be executed using:
 
 ```bash
-homegear -e rs lower-case_spec.php
+python3 lower-case_spec.py
 ```
+
+## Creating a simple node in C++
+
+This example will show how to create a node in C++ that converts message payloads to all lower-case characters.
+
+Create a directory named node-blue-node-example-lower-case (the directory name must match the module name) where you will develop your code. Within that directory, create the following files:
+
+    package.json
+    LowerCase.h
+    LowerCase.cpp
+    CMakeLists.txt
+    lower-case.html
+
+#### :fa-file: package.json
+
+This is a standard file used by Node-BLUE modules to describe their contents.
+
+Add the following content:
+
+```json
+{
+  "name": "node-blue-node-example-lower-case",
+  "version": "1.0.0",
+  "description": "A node to convert strings to lower case.",
+  "homepage": "https://lower-case.example.com",
+  "node-blue": {
+    "maxThreadCounts": {
+      "lower-case": 0
+    },
+    "nodes": {
+      "lower-case": "lower-case.so"
+    }
+  }
+}
+```
+
+This tells the runtime the name of the module and what node files the module contains. `maxThreadCounts` is needed only, when the node starts new threads and is relevant to calculate the number of nodes that can run within one process before reaching the thread limit.
+
+For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the packaging guide (TODO).
+
+#### :fa-file: LowerCase.h
+
+```c++
+#ifndef LOWER_CASE_H_
+#define LOWER_CASE_H_
+
+#include <homegear-node/NodeFactory.h>
+#include <homegear-node/INode.h>
+
+class MyFactory : Flows::NodeFactory {
+ public:
+  Flows::INode *createNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) override;
+};
+
+extern "C" Flows::NodeFactory *getFactory();
+
+namespace LowerCase {
+
+class LowerCase : public Flows::INode {
+ public:
+  LowerCase(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~LowerCase() override;
+
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+ private:
+};
+
+}
+
+#endif
+```
+
+
+
+#### :fa-file: LowerCase.cpp
+
+```c++
+#include "LowerCase.h"
+
+Flows::INode *MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) {
+  return new LowerCase::LowerCase(path, type, frontendConnected);
+}
+
+Flows::NodeFactory *getFactory() {
+  return (Flows::NodeFactory *)(new MyFactory);
+}
+
+namespace LowerCase {
+
+LowerCase::LowerCase(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+}
+
+LowerCase::~LowerCase() = default;
+
+void LowerCase::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    auto newMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    *newMessage = *message; //We are not allowed to change message, so we create a copy.
+    auto &s = newMessage->structValue->at("payload")->stringValue;
+    std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+    output(0, newMessage);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+}
+
+}
+```
+
