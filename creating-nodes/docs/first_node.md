@@ -807,3 +807,91 @@ void LowerCase::input(const Flows::PNodeInfo &info, uint32_t index, const Flows:
 }
 ```
 
+The code above is loaded by Homegear and executed by the Node-BLUE process. The NodeFactory is needed by Homegear to dynamically load the node. This part can just be copied into each node. 
+
+The node itself is implemented as a class `LowerCase` derived from `Flows::INode`. It overrides the method `input` which gets called whenever a message arrives at the node. Three parameters are passed to `input`:
+
+1. `info`: Information about the node (like `name`, `id`, ...)
+2. `index`: The index of the input the message arrived at
+3. `message`: The message object
+
+In this method the payload is changed to lower case. Then `output()` is called to pass the message on in the flow.
+
+For more information about the runtime part of the node, see here (TODO).
+
+#### :fa-file: CMakeLists.txt
+
+```cmake
+cmake_minimum_required(VERSION 3.16)
+project(lower-case)
+set(CMAKE_CXX_STANDARD 17)
+include_directories(.)
+add_library(lower-case SHARED LowerCase.cpp LowerCase.h)
+add_custom_command(TARGET lower-case POST_BUILD COMMAND mv ARGS liblower-case.so ../lower-case.so)
+```
+
+CMake is used by Node-BLUE to compile nodes from the palette, so a CMakeLists.txt file needs to be provided. The line worth mentioning is the last line which renames the library file and copies it to the correct location.
+
+#### :fa-file: lower-case.html
+
+```html
+<script type="text/javascript">
+    RED.nodes.registerType('lower-case',{
+        category: 'function',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "file.png",
+        label: function() {
+            return this.name||"lower-case";
+        }
+    });
+</script>
+
+<script type="text/html" data-template-name="lower-case">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="lower-case">
+    <p>A simple node that converts the message payloads into all lower-case characters</p>
+</script>
+```
+
+A node’s HTML file provides the following things:
+
+- the main node definition that is registered with the editor
+- the edit template
+- the help text
+
+In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
+
+For more information about the editor part of the node, see here (TODO).
+
+### Testing your C++ node in Node-BLUE
+
+Once you have created a basic node module as described above, you can install it into your Node-BLUE runtime.
+
+To test a node module locally, create a link to the folder containing the files in your Node-BLUE node directory (by default `/var/lib/homegear/node-blue/nodes`). For example if your node is located at `~/dev/node-blue-node-example-lower-case` you would do the following:
+
+```bash
+cd /var/lib/homegear/node-blue/nodes
+ln -s ~/dev/node-blue-node-example-lower-case node-blue-node-example-lower-case
+```
+
+This creates a symbolic link to your node module project directory in  `/var/lib/homegear/node-blue/nodes` so that Node-BLUE will discover the node when it starts or reloads. Any changes to  the node’s HTML file can be picked up by simply reloading the Node-BLUE UI. Changes to the code files or locales require a Node-BLUE restart. To restart Node-BLUE without restarting the whole Homegear process, execute the following command in your shell:
+
+```
+homegear -e fr
+```
+
+or select `Restart Node-BLUE` from the Node-BLUE UI's menu.
+
+### Unit testing with Python
+
+Unit testing can be done with C++ by using the same methods as with the other programming languages. It is recommended though to use a scripting language.
