@@ -1,6 +1,6 @@
 # Configuration
 
-Node-BLUE is configured in Homegear's `main.conf`. By default this file is located in `/etc/homegear`. The following Node-BLUE-specific configuration options are available:
+Node-BLUE is configured in Homegear's `main.conf`. By default this file is located in `/etc/homegear`. The default settings should be fine for most installations. The following Node-BLUE-specific configuration options are available:
 
 | Option                | Description                                                  |
 | --------------------- | ------------------------------------------------------------ |
