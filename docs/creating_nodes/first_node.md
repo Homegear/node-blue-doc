@@ -11,8 +11,6 @@ They consist at least of:
 
 A `package.json` file is used to package it all together as a module.
 
-[TOC]
-
 ## Creating a simple node in PHP
 
 ### Implementing the node
@@ -872,6 +870,20 @@ A node’s HTML file provides the following things:
 In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
 
 For more information about the editor part of the node, see here (TODO).
+
+### Compiling your C++ node
+
+To compile your C++ node execute the following:
+
+```bash
+cd <node directory>
+mkdir build
+cd build
+cmake ..
+make -j
+```
+
+
 
 ### Testing your C++ node in Node-BLUE
 

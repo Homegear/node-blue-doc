@@ -1,0 +1,27 @@
+site_name: Node-BLUE Documentation
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - search.suggest
+    - search.highlight
+    - search.share
+extra:
+  generator: false
+nav:
+  - Home: index.md
+  - Creating Nodes:
+    - creating_nodes/index.md
+    - creating_nodes/first_node.md
+    - creating_nodes/node_initialization_and_deinitialization.md
+plugins:
+  - search
+markdown_extensions:
+  - toc:
+      toc_depth: 3
+      permalink: true
+  - fontawesome_markdown
+  - admonition
+  - footnotes
+

@@ -1,4 +1,4 @@
-# Creating Node-BLUE Nodes
+# Creating Nodes
 
 Node-BLUE can be easily extended by creating new nodes. New nodes can be written in four programming languages:
 
@@ -12,6 +12,7 @@ This guide describes how to write new nodes in each of them. As the Node-BLUE fr
 Please click on the sections you want to read:
 
 * [Creating your first node](first_node.md)
+* [Node initialization and deinitialization](node_initialization_and_deinitialization.md)
 
 ## General guidance
 
