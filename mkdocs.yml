@@ -10,7 +10,11 @@ theme:
 extra:
   generator: false
 nav:
-  - Home: index.md
+  - Overview: index.md
+  - Getting Started:
+    - getting_started/index.md
+    - getting_started/installation.md
+    - getting_started/configuration.md
   - Creating Nodes:
     - creating_nodes/index.md
     - creating_nodes/first_node.md
