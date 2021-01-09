@@ -8,7 +8,6 @@ theme:
     - search.highlight
     - search.share
 extra:
-  disqus: node-blue
   generator: false
 nav:
   - Overview: index.md
