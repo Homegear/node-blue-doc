@@ -9,6 +9,13 @@ theme:
     - search.share
 extra:
   generator: false
+  social:
+    - icon: fontawesome/solid/home
+      link: https://doc.homegear.eu/
+      name: Homegear Documentation Home
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/smart_homegear
+      name: Homegear on Twitter
 nav:
   - Overview: index.md
   - Getting Started:
@@ -19,6 +26,7 @@ nav:
     - creating_nodes/index.md
     - creating_nodes/first_node.md
     - creating_nodes/node_initialization_and_deinitialization.md
+    - creating_nodes/javascript_code_files.md
 plugins:
   - search
 markdown_extensions:
