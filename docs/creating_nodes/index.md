@@ -13,6 +13,8 @@ Please click on the sections you want to read:
 
 * [Creating your first node](first_node.md)
 * [Node initialization and deinitialization](node_initialization_and_deinitialization.md)
+* [JavaScript code files](javascript_code_files.md)
+* [Code files of simple PHP nodes](php_simple_code_files.md)
 
 ## General guidance
 

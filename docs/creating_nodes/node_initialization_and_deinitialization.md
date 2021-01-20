@@ -6,7 +6,8 @@ The initialization and deinitialization of nodes is a multi-step process. Not al
 
 1. `init`: Right after the node is loaded init is called. A Struct with information about the node (id, name, configuration parameters, ...) is passed to init. All initilialization that can be done at this point, should be done here. When initialization fails, `false` must be returned, which aborts the initialization of that node. Homegear waits for `init` to complete for all nodes before continuing with the next step.
 2. `start`: In start there are no restrictions on what is allowed to do. Just note, that `start` mustn't hang (don't sleep or wait). As with `init` `false` can be returned to abort the initialization of that node.
-3. Once `start` is finished for all nodes, Homegear calls `startUpComplete`. `startUpComplete` must not hang as well.
+3. Once `start` is finished for all nodes, Homegear calls `configNodesStarted`. This method must not hang as well.
+4. After calling `configNodesStarted` on all nodes, Homegear executes `startUpComplete`.  As with the other start methods, `startUpComplete` is not allowed to hang.
 
 ## Deinitialization
 
@@ -17,25 +18,25 @@ The initialization and deinitialization of nodes is a multi-step process. Not al
 
 See the following table for an overview on what is allowed or available in the initialization/deinitialization methods:
 
-|                                             | `init` | `start` | `startUpComplete` | `stop` | `waitForStop` |
-| ------------------------------------------- | ------ | ------- | ----------------- | ------ | ------------- |
-| **Node information available**              | yes    | yes     | yes               | yes    | yes           |
-| **RPC methods available**                   | no     | yes     | yes               | yes    | no            |
-| **Get parameters from configuration nodes** | no     | yes     | yes               | yes    | no            |
-| **Must return immediately**                 | yes    | yes     | yes               | yes    | no            |
-| **Can abort loading of node**               | yes    | yes     | no                | no     | no            |
+|                                             | `init` | `start` | `configNodesStarted` | `startUpComplete` | `stop` | `waitForStop` |
+| ------------------------------------------- | ------ | ------- | -------------------- | ----------------- | ------ | ------------- |
+| **Node information available**              | yes    | yes     | yes                  | yes               | yes    | yes           |
+| **RPC methods available**                   | no     | yes     | yes                  | yes               | yes    | no            |
+| **Get parameters from configuration nodes** | no     | (yes)   | yes                  | yes               | yes    | no            |
+| **Must return immediately**                 | yes    | yes     | yes                  | yes               | yes    | no            |
+| **Can abort loading of node**               | yes    | yes     | yes                  | no                | no     | no            |
 
 ​    
 
 See the following table on the availability of the initialization/deinitialization methods for different programming languages:
 
-|                    | `init` | `start` | `startUpComplete` | `stop`  | `waitForStop` |
-| ------------------ | ------ | ------- | ----------------- | ------- | ------------- |
-| **PHP (simple)**   | no     | no      | no                | no      | no            |
-| **PHP (stateful)** | yes    | yes     | yes               | yes     | yes           |
-| **JavaScript**     | no[^1] | no      | no                | no[^2]  | no            |
-| **Python**         | no     | yes     | yes               | yes     | no            |
-| **C++**            | yes    | yes[^3] | yes               | yes[^4] | yes           |
+|                    | `init` | `start` | `configNodesStarted` | `startUpComplete` | `stop`  | `waitForStop` |
+| ------------------ | ------ | ------- | -------------------- | ----------------- | ------- | ------------- |
+| **PHP (simple)**   | no     | no      | no                   | no                | no      | no            |
+| **PHP (stateful)** | yes    | yes     | yes                  | yes               | yes     | yes           |
+| **JavaScript**     | no[^1] | no      | no                   | no                | no[^2]  | no            |
+| **Python**         | no     | yes[^3] | no                   | yes               | yes[^4] | no            |
+| **C++**            | yes    | yes     | yes                  | yes               | yes     | yes           |
 
 [^1]: JavaScript nodes are started and available before `init` is called on nodes of other languages.
 [^2]: JavaScript nodes are stopped after all nodes written in other languages are stopped.

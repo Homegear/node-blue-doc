@@ -4,7 +4,7 @@ This section is largely citing the Node-RED documentation.
 
 For JavaScript nodes the node `.js` file defines the runtime behavior of the node.
 
-!!! warning:
+!!! warning
     Don't apply the documentation for JavaScript nodes to nodes written in other languages. A lot of things described in the JavaScript sections are valid for JavaScript nodes only.
 
 ## Node constructor

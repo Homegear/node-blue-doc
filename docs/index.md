@@ -1,4 +1,4 @@
 # Node-BLUE Documentation
 
-* [Creating Nodes](/creating-nodes)
+* [Creating Nodes](creating_nodes)
 
