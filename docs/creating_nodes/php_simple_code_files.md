@@ -4,11 +4,15 @@ Simple PHP nodes are executed only when a message arrives. In contrast to statef
 
 As the name suggests, this is probably the easiest possible way to create a node.
 
+The file extension of simple PHP code files is `.php`.
+
 ## Node class
 
 The node is a PHP class named `HomegearNode` derived from `HomegearNodeBase`. You must use the class name `HomegearNode` as otherwise Node-BLUE is not able to load the node.
 
 ```php
+declare(strict_types=1);
+
 class HomegearNode extends HomegearNodeBase
 {
     ...

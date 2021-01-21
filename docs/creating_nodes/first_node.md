@@ -58,15 +58,7 @@ declare(strict_types=1);
 
 class HomegearNode extends HomegearNodeBase
 {
-    private $hg = null;
-
-    public function __construct()
-    {
-	    $this->hg = new \Homegear\Homegear();
-    }
-
-    public function input(array $nodeInfo, int $inputIndex, array $msg)
-    {
+    public function input(array $nodeInfo, int $inputIndex, array $msg) {
         $msg['payload'] = strtolower($msg['payload']);
         $this->output(0, $msg);
     }
