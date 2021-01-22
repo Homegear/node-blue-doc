@@ -29,6 +29,8 @@ nav:
     - creating_nodes/javascript_code_files.md
     - creating_nodes/php_simple_code_files.md
     - creating_nodes/php_stateful_code_files.md
+    - creating_nodes/html_file.md
+    - creating_nodes/configuration_nodes.md
 plugins:
   - search
 markdown_extensions:

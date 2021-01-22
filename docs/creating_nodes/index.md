@@ -15,7 +15,9 @@ Please click on the sections you want to read:
 * [Node initialization and deinitialization](node_initialization_and_deinitialization.md)
 * [JavaScript code files](javascript_code_files.md)
 * [Code files of simple PHP nodes](php_simple_code_files.md)
-* [Code files of stateful PHP nodes](php_stateful_code_files.md)
+* [Code files of stateful PHP nodes](php_stateful_code_files)
+* [HTML file](html_file)
+* [Configuration nodes](configuration_nodes)
 
 ## General guidance
 

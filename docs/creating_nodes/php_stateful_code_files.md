@@ -177,55 +177,6 @@ Whilst running, a node is able to share status information with the editor UI. T
 $this->nodeEvent('status/'.$nodeId, ['text' => 'Feeling great', 'shape' => 'dot', 'fill' => 'green']);
 ```
 
-## Configuration nodes
-
-Configuration nodes can be used for configuration but can also provide a service like TCP communication with an endpoint. Configuration are implemented the same way as a stateful PHP node. There is just one more required method: `getConfigParamaterIncoming`.
-
-```php
-public function getConfigParameterIncoming($key) {
-    return [
-        'hostname' => $this->nodeInfo['info']['hostname'],
-        'username' => $this->nodeInfo['info']['user'],
-        'password' => $this->getNodeData('credentials')['password']
-    ];
-}
-```
-
-To request the configuration parameters from the configuration node, call `getConfigParameter`:
-
-```php
-$configuration = $this->getConfigParameter($nodeId, $key);
-```
-
-### Providing services
-
-When providing a service it is also necessary to establish bidirectional communication between the configuration node and the node using it. For this you can use the method [`invokeNodeMethod`](https://ref.homegear.eu/php.html#HomegearNodeBaseinvokeNodeMethod):
-
-```php
-/*
- * The first parameter is the node ID to call the method on.
- * The second parameter is the method's name.
- * The third parameter are the parameters.
- * The fourth parameter should be set to false if you don't need the return value. This increases performance.
- */
-$this->invokeNodeMethod($this->nodeInfo['info']['server'], 'registerNode', [self::NODE_ID], false);
-```
-
-This calls the method `registerNode`. An example implementation might look like this:
-
-```php
-class HomegearNode extends HomegearNodeBase
-{
-    //...
-    
-    public function registerNode(string nodeId) {
-        //Do something
-    }
-    
-    //...
-}
-```
-
 ## Concurrent tasks
 
 The PHP extension "parallel" is included in Homegear's PHP for concurrent task support. See https://www.php.net/manual/en/book.parallel for more information.
