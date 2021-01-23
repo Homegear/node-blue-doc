@@ -52,7 +52,91 @@ The runtime needs to know the credential types. For this a file named `<type>.cr
 
 ### Runtime use of credentials
 
-Todo
+Within the runtime, credentials are fully accessible.
+
+#### PHP
+
+You can read the credentials using `getNodeData` with the reserved parameter `credentials`.
+
+```php
+$credentials = $this->getNodeData('credentials');
+$username = $credentials['username'] ?? '';
+$password = $credentials['password'] ?? '';
+```
+
+Credentials can be written from the runtime as well using `setNodeData`. You only need to write the credentials that changed.
+
+```php
+setNodeData('credentials', ['username' => 'my-user', 'password' => '123456']);
+```
+
+#### Python
+
+You can read the credentials using `getNodeCredentials`.
+
+```python
+hg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput)
+
+...
+
+credentials = hg.getNodeCredentials()
+username = credentials["username"] or ""
+password = credentials["password"] or ""
+```
+
+Credentials can be written from the runtime as well using `setNodeCredentials`. You only need to write the credentials that changed.
+
+```python
+hg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput)
+
+...
+
+hg.setNodeCredentials({"username": "my-user", "password": "123456"})
+```
+
+#### JavaScript
+
+Within the runtime, a node can access its credentials using the `credentials` property:
+
+```javascript
+function MyNode(config) {
+    RED.nodes.createNode(this, config);
+    var username = this.credentials.username;
+    var password = this.credentials.password;
+}
+```
+
+From JavaScript nodes credentials can be written calling `setNodeCredentials` on the Homegear object:
+
+```javascript
+function MyNode(config) {
+    RED.nodes.createNode(this, config);
+    this.homegear.invoke("setNodeCredentials", [node.id, {username: "my-user", password: "123456"}]);
+}
+```
+
+#### C++
+
+You can read the credentials using `getNodeData` with the reserved parameter `credentials`.
+
+```c++
+auto credentials = getNodeData("credentials");
+std::string username;
+std::string password;
+auto credentialsIterator = credentials->structValue->find("username");
+if (credentialsIterator != credentials->structValue->end()) username = credentialsIterator->second->stringValue;
+credentialsIterator = credentials->structValue->find("password");
+if (credentialsIterator != credentials->structValue->end()) password = credentialsIterator->second->stringValue;
+```
+
+Credentials can be written from the runtime as well using `setNodeData`. You only need to write the credentials that changed.
+
+```c++
+auto credentials = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+credentials->structValue->emplace("username", std::make_shared<Flows::Variable>("my-user"));
+credentials->structValue->emplace("password", std::make_shared<Flows::Variable>("123456"));
+setNodeData("credentials", credentials);
+```
 
 ### Credentials within the Editor
 

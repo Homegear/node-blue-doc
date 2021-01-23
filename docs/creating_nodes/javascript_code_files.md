@@ -149,6 +149,19 @@ this.on('close', function(removed, done) {
 
 The runtime will timeout the node if it takes longer than 15 seconds. An error will be logged and the runtime will continue to operate.
 
+## Calling Homegear RPC methods
+
+All of [Homegear's RPC methods](https://ref.homegear.eu/rpc.html) can be called using the invoke method of the node's Homegear object:
+
+```javascript
+function MyNode(config) {
+    RED.nodes.createNode(this, config);
+    this.homegear.invoke("setSystemVariable", ["TEST", true]);
+}
+```
+
+
+
 ## Logging events
 
 If a node needs to log something to the Homegear log, it can use one of the following functions:
