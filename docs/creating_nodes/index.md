@@ -20,6 +20,7 @@ Please click on the sections you want to read:
 * [Packaging](packaging)
 * [Node properties](node_properties)
 * [Node credentials](node_credentials)
+* [Node appearance](node_appearance)
 * [Configuration nodes](configuration_nodes)
 
 ## General guidance
