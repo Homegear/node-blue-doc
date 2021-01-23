@@ -22,6 +22,7 @@ Please click on the sections you want to read:
 * [Node credentials](node_credentials)
 * [Node appearance](node_appearance)
 * [Node edit dialog](node_edit_dialog)
+* [Storing context](node_context)
 * [Configuration nodes](configuration_nodes)
 
 ## General guidance

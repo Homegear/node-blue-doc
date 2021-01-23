@@ -35,6 +35,7 @@ nav:
     - creating_nodes/node_credentials.md
     - creating_nodes/node_appearance.md
     - creating_nodes/node_edit_dialog.md
+    - creating_nodes/node_context.md
     - creating_nodes/configuration_nodes.md
 plugins:
   - search
