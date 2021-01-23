@@ -30,6 +30,9 @@ nav:
     - creating_nodes/php_simple_code_files.md
     - creating_nodes/php_stateful_code_files.md
     - creating_nodes/html_file.md
+    - creating_nodes/packaging.md
+    - creating_nodes/node_properties.md
+    - creating_nodes/node_credentials.md
     - creating_nodes/configuration_nodes.md
 plugins:
   - search

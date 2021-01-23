@@ -17,6 +17,9 @@ Please click on the sections you want to read:
 * [Code files of simple PHP nodes](php_simple_code_files.md)
 * [Code files of stateful PHP nodes](php_stateful_code_files)
 * [HTML file](html_file)
+* [Packaging](packaging)
+* [Node properties](node_properties)
+* [Node credentials](node_credentials)
 * [Configuration nodes](configuration_nodes)
 
 ## General guidance
