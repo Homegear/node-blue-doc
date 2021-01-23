@@ -87,7 +87,7 @@ From JavaScript nodes credentials can be written calling `setNodeCredentials` on
 ```javascript
 function MyNode(config) {
     RED.nodes.createNode(this, config);
-    this.homegear.invoke("setNodeCredentials", [node.id, {username: "my-user", password: "123456"}]);
+    this.homegear.invoke("setNodeCredentials", [this.id, {username: "my-user", password: "123456"}]);
 }
 ```
 

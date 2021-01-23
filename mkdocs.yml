@@ -29,6 +29,7 @@ nav:
     - creating_nodes/javascript_code_files.md
     - creating_nodes/php_simple_code_files.md
     - creating_nodes/php_stateful_code_files.md
+    - creating_nodes/cpp_code_files.md
     - creating_nodes/html_file.md
     - creating_nodes/packaging.md
     - creating_nodes/node_properties.md
@@ -36,6 +37,7 @@ nav:
     - creating_nodes/node_appearance.md
     - creating_nodes/node_edit_dialog.md
     - creating_nodes/node_context.md
+    - creating_nodes/node_status.md
     - creating_nodes/configuration_nodes.md
 plugins:
   - search

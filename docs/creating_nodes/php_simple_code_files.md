@@ -19,6 +19,27 @@ class HomegearNode extends HomegearNodeBase
 }
 ```
 
+### Class constants
+
+There are two class constants available in `HomegearNode`:
+
+```php
+HomagearNode::NODE_ID
+```
+
+and
+
+```php
+HomegearNode::FLOW_ID
+```
+
+They can be accessed from within the class using `self`:
+
+```php
+self::NODE_ID
+self::FLOW_ID
+```
+
 ## Receiving messages
 
 For every received message a new `HomegearNode` object is constructed by Node-BLUE. Only one method must exist for simple PHP nodes: `input`. This method is executed whenever a new message arrives.

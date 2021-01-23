@@ -16,6 +16,7 @@ Please click on the sections you want to read:
 * [JavaScript code files](javascript_code_files.md)
 * [Code files of simple PHP nodes](php_simple_code_files.md)
 * [Code files of stateful PHP nodes](php_stateful_code_files)
+* [Code files of C++ nodes](cpp_code_files)
 * [HTML file](html_file)
 * [Packaging](packaging)
 * [Node properties](node_properties)
@@ -23,6 +24,7 @@ Please click on the sections you want to read:
 * [Node appearance](node_appearance)
 * [Node edit dialog](node_edit_dialog)
 * [Storing context](node_context)
+* [Node status](node_status)
 * [Configuration nodes](configuration_nodes)
 
 ## General guidance

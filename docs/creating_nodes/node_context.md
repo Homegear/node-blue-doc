@@ -19,35 +19,25 @@ There are three scopes of context available to a node:
 Context is available in simple and stateful PHP nodes.
 
 ```php
-class HomegearNode extends HomegearNodeBase
-{    
-    public function myMethod {
-        ...
-        $nodeData = $this->getNodeData('my-node-info');
-        $flowData = $this->getFlowData('my-flow-info');
-        $globalData = $this->getGlobalData('my-global-info');
-        
-        $this->setNodeData('my-node-info', 5);        
-        $this->setFlowData('my-flow-info', 'my string');
-        $this->setGlobalData('my-global-info', ['key' => 'value']);
-        ...
-    }
-}
+$nodeData = $this->getNodeData('my-node-info');
+$flowData = $this->getFlowData('my-flow-info');
+$globalData = $this->getGlobalData('my-global-info');
+
+$this->setNodeData('my-node-info', 5);        
+$this->setFlowData('my-flow-info', 'my string');
+$this->setGlobalData('my-global-info', ['key' => 'value']);
 ```
 
 ## JavaScript
 
 ```javascript
-function MyNode(config) {
-    RED.nodes.createNode(this, config);
-    var nodeData = this.homegear.invoke("getNodeData", [node.id, "my-node-info"]);
-    var flowData = this.homegear.invoke("getFlowData", [node.id, "my-flow-info"]);
-    var globalData = this.homegear.invoke("getGlobalData", [node.id, "my-global-info"]);
-    
-    this.homegear.invoke("setNodeData", [node.id, "my-node-info", 5]);
-    this.homegear.invoke("setFlowData", [node.id, "my-flow-info", "my string"]);
-    this.homegear.invoke("setGlobalData", [node.id, "my-global-info", {"key": "value"}]);
-}
+var nodeData = this.homegear.invoke("getNodeData", [this.id, "my-node-info"]);
+var flowData = this.homegear.invoke("getFlowData", [this.id, "my-flow-info"]);
+var globalData = this.homegear.invoke("getGlobalData", [this.id, "my-global-info"]);
+
+this.homegear.invoke("setNodeData", [this.id, "my-node-info", 5]);
+this.homegear.invoke("setFlowData", [this.id, "my-flow-info", "my string"]);
+this.homegear.invoke("setGlobalData", [this.id, "my-global-info", {"key": "value"}]);
 ```
 
 In addition it is possible to use Node-RED's context object. This requires more resources through.

@@ -4,7 +4,7 @@ In contrast to simple PHP nodes, stateful PHP nodes are executed on Homegear sta
 
 Stateful PHP node code files end on `.s.php`.
 
-## Node constructor
+## Node class
 
 The node is a PHP class named `HomegearNode` derived from `HomegearNodeBase`. You must use the class name `HomegearNode` as otherwise Node-BLUE is not able to load the node.
 
@@ -89,9 +89,9 @@ class HomegearNode extends HomegearNodeBase
 }
 ```
 
-## Class constants
+### Class constants
 
-There are two class constants available:
+There are two class constants available in `HomegearNode`:
 
 ```php
 HomagearNode::NODE_ID
@@ -102,6 +102,15 @@ and
 ```php
 HomegearNode::FLOW_ID
 ```
+
+They can be accessed from within the class using `self`:
+
+```php
+self::NODE_ID
+self::FLOW_ID
+```
+
+
 
 ## Receiving messages
 
@@ -130,13 +139,13 @@ $this->log($logLevel, $errorMessage);
 
 Available log levels are:
 
-| Loglevel | Description |
-| -------- | ----------- |
-| 1        | Critical    |
-| 2        | Error       |
-| 3        | Warning     |
-| 4        | Info        |
-| 5        | Debug       |
+| Log level | Description |
+| --------- | ----------- |
+| 1         | Critical    |
+| 2         | Error       |
+| 3         | Warning     |
+| 4         | Info        |
+| 5         | Debug       |
 
 The log message is written to Homegear's flows log file. Warnings and errors also trigger `Catch` nodes and - if not handled by a `Catch` node - are written to debug tabs of connected frontends.
 
