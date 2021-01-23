@@ -26,6 +26,7 @@ Here is a typical directory structure for a node package:
     │   └── en
     │       ├── sample.help.html
     │       └── sample.json
+    ├── sample.cred.json
     ├── sample.html
     └── sample.php
 ```
