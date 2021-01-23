@@ -70,6 +70,27 @@ Credentials can be written from the runtime as well using `setNodeData`. You onl
 setNodeData('credentials', ['username' => 'my-user', 'password' => '123456']);
 ```
 
+#### JavaScript
+
+Within the runtime, a node can access its credentials using the `credentials` property:
+
+```javascript
+function MyNode(config) {
+    RED.nodes.createNode(this, config);
+    var username = this.credentials.username;
+    var password = this.credentials.password;
+}
+```
+
+From JavaScript nodes credentials can be written calling `setNodeCredentials` on the Homegear object:
+
+```javascript
+function MyNode(config) {
+    RED.nodes.createNode(this, config);
+    this.homegear.invoke("setNodeCredentials", [node.id, {username: "my-user", password: "123456"}]);
+}
+```
+
 #### Python
 
 You can read the credentials using `getNodeCredentials`.
@@ -92,27 +113,6 @@ hg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput)
 ...
 
 hg.setNodeCredentials({"username": "my-user", "password": "123456"})
-```
-
-#### JavaScript
-
-Within the runtime, a node can access its credentials using the `credentials` property:
-
-```javascript
-function MyNode(config) {
-    RED.nodes.createNode(this, config);
-    var username = this.credentials.username;
-    var password = this.credentials.password;
-}
-```
-
-From JavaScript nodes credentials can be written calling `setNodeCredentials` on the Homegear object:
-
-```javascript
-function MyNode(config) {
-    RED.nodes.createNode(this, config);
-    this.homegear.invoke("setNodeCredentials", [node.id, {username: "my-user", password: "123456"}]);
-}
 ```
 
 #### C++

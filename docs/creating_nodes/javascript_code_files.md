@@ -182,4 +182,4 @@ Whilst running, a node is able to share status information with the editor UI. T
 this.status({fill:"red",shape:"ring",text:"disconnected"});
 ```
 
-The details of the status api can be found here (TODO).
+The details of the status api can be found [here](node_status).

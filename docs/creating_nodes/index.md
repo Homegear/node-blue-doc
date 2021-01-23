@@ -21,6 +21,7 @@ Please click on the sections you want to read:
 * [Node properties](node_properties)
 * [Node credentials](node_credentials)
 * [Node appearance](node_appearance)
+* [Node edit dialog](node_edit_dialog)
 * [Configuration nodes](configuration_nodes)
 
 ## General guidance
