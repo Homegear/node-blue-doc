@@ -97,7 +97,7 @@ label: function() {
 ...
 ```
 
-Note that it is not possible to use [credential](node_credentials) properties in the label function.
+Note that it is not possible to use [credential](node_credentials.md) properties in the label function.
 
 ### Palette label
 

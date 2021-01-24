@@ -2,7 +2,7 @@
 
 A node’s properties are defined by the `defaults` object in its html definition. These are the properties that get passed to the node constructor function when an instance of the node is created in the runtime.
 
-In the example from the [creating your first node section](first_node), the node had a single property called `name`. In this section, we’ll add a new property called `prefix` to the node:
+In the example from the [creating your first node section](first_node.md), the node had a single property called `name`. In this section, we’ll add a new property called `prefix` to the node:
 
 Add a new entry to the `defaults` object:
 
@@ -40,7 +40,7 @@ The entries in the `defaults` object must be objects and can have the following 
 - `value` : (any type) the default value the property takes
 - `required` : (boolean) *optional* whether the property is required. If set to true, the property will be invalid if its value is null or an empty string.
 - `validate` : (function) *optional* a function that can be used to validate the value of the property.
-- `type` : (string) *optional* if this property is a pointer to a [configuration node](configuration_nodes),  this identifies the type of the node.
+- `type` : (string) *optional* if this property is a pointer to a [configuration node](configuration_nodes.md), this identifies the type of the node.
 
 ## Reserved property names
 
@@ -79,7 +79,7 @@ defaults: {
 },
 ```
 
-Note how the `custom` property is only valid if its length is greater than the current value of the `minimumLength` property or the value of the minimumLength form element.
+Note how the `custom` property is only valid if its length is greater than the current value of the `minimumLength` property or the value of the `minimumLength` form element.
 
 ## Property edit dialog
 
@@ -87,7 +87,7 @@ When the edit dialog is opened, the editor populates the dialog with the edit te
 
 For each of the properties in the `defaults` array, it looks for an `<input>` element with an `id` set to `node-input-<propertyname>`, or `node-config-input-<propertyname>` in the case of Configuration nodes. This input is then automatically populated with the current value of the property. When the edit dialog is closed, the property takes whatever value is in the input.
 
-More information about the edit dialog is available [here](edit_dialog).
+More information about the edit dialog is available [here](edit_dialog.md).
 
 ### Custom edit behavior
 

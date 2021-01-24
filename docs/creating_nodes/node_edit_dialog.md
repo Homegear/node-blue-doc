@@ -4,7 +4,7 @@ The edit dialog for a node is the main way a user can configure the node to do w
 
 The dialog should be intuitive to use and be consistent in its design and appearance when compared to other nodes.
 
-The edit dialog is provided in the [node's HTML file](html_file), inside a `<script>` tag:
+The edit dialog is provided in the [node's HTML file](html_file.md), inside a `<script>` tag:
 
 ```html
 <script type="text/html" data-template-name="node-type">

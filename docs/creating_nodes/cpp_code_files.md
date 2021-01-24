@@ -212,3 +212,204 @@ An object of type `Flows::NodeInfo` is passed to `Flows::INode::init` and `Flows
 | `std::vector<std::vector<Wire>> wiresIn`  | All incoming wires. The outer vector are the inputs, the inner vector the wires to that input. |
 | `std::vector<std::vector<Wire>> wiresOut` | All outgoing wires. The outer vector are the outputs, the inner vector the wires from that output. |
 
+## Flows::MessageProperty
+
+This class helps you working with inputs where a user can enter a message property (for example in the switch node). For example:
+
+![image-20210123235734479](images/cpp_code_files/image-20210123235734479.png)
+
+You can now construct the message property class with this setting:
+
+```c++
+auto property = Flows::MessageProperty("payload[5].data");
+```
+
+Now when a message arrives, you can extract that property:
+
+```c++
+auto myData = property.match(message);
+//myData now contains the value of "payload[5].data"
+```
+
+In addition `Flows::MessageProperty` provides the following methods:
+
+| Method                                                       | Description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `bool empty();`                                              | Just returns if a non-empty property was passed to the constructor. |
+| `bool erase(Flows::PVariable &message);`                     | Deletes the property specified in the constructor from `message`. |
+| `bool set(Flows::PVariable &message, Flows::PVariable &value);` | Sets the property in `message` to `value`.                   |
+
+## Flows::JsonEncoder
+
+Converts `Flows::PVariable` to a JSON string (`std::string Flows::JsonEncoder::getString(const PVariable &variable)`) or a JSON character vector (`std::vector<char> Flows::JsonEncoder::getVector(const PVariable &variable)`). Both methods can be accessed statically.
+
+## Flows::JsonDecoder
+
+Converts a JSON string (`PVariable decode(const std::string &json)`) or character vector (`PVariable decode(const std::vector<char> &json)`) to `Flows::PVariable`. Both methods can be accessed statically.
+
+## Flows::Math
+
+The `Flows::Math` class implements methods
+
+* to convert strings to numbers
+* scale or clamp numbers
+* convert floating point numbers to and from binary and
+* to convert floating point numbers to strings with defined precision.
+
+Look at the header file in `libhomegear-node` for a description of the available methods.
+
+## Flows::HelperFunctions
+
+The `Flows::HelperFunctions` class implements methods:
+
+* to trim Strings
+* convert Strings to upper or lower case
+* get the hexadecimal string representation of binary data
+* get the current time in seconds, milliseconds, microseconds or a date and time String
+
+For a description of the available methods see the header file in `libhomegear-node`.
+
+## Flows::INode
+
+!!! warning
+    Please note, that no methods except `waitForStup` are allowed to block. Too many blocking calls would cause the Node-BLUE process to hang. There is no hard time limit, but blocking for 1 second already is too long. Consider moving long-running operations to a seperate thread.
+
+### Variables
+
+The following variables can be accessed from within you node class:
+
+| Variable                                     | Description                                                  |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| `std::string _path`                          | The full path to the node's files.                           |
+| `std::string _type`                          | The node type.                                               |
+| `std::string _id`                            | The node's ID.                                               |
+| `std::string _flowId`                        | The node's flow ID.                                          |
+| `std::string _name`                          | The name of the node (if set)                                |
+| `const std::atomic_bool *_frontendConnected` | `true` when a Web browser with an open Node-BLUE editor is currently connected to Homegear. |
+| `std::map<...> _localRpcMethods`             | A map to define RPC methods for inter-node communication. Used primarily to communicate with [configuration nodes](configuration_nodes.md). |
+
+### Callable methods
+
+TODO
+
+### Overridable methods
+
+#### Methods used for initialization and deinitialization
+
+See section [initialization and deinitialization](node_initialization_and_deinitialization.md) for more information.
+
+| Method                                  |
+| --------------------------------------- |
+| `bool init(const PNodeInfo &nodeInfo);` |
+| `bool start();`                         |
+| `void configNodesStarted();`            |
+| `void startUpComplete();`               |
+| `void stop();`                          |
+| `void waitForStop();`                   |
+
+#### Event methods
+
+##### variableEvent
+
+```c++
+void variableEvent(const std::string &source,
+                   uint64_t peerId,
+                   int32_t channel,
+                   const std::string &variable,
+                   const PVariable &value,
+                   const PVariable &metadata)
+```
+
+This method is called on any variable update to system variables, metadata variables and subscribed peer variables. To get peer variable updates, you need to subscribe them by calling `subscribePeer(uint64_t peerId, int32_t channel, const std::string &variable)`. As `subscribePeer` doesn't require inter-process or inter-node communication, it already can be called within `init`.
+
+!!! note
+    System variables and metadata variables don't require subscription.
+
+###### Parameters
+
+| Parameter  | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `source`   | The entity or service where the event originated: `device-<peer ID>`, `scriptEngine`, `profileManager`, `nodeBlue`, `ipcServer`, `homegear`, `client-<ID>`, `rpc-client-<ID>` or `mqtt` |
+| `peerId`   | The ID of the peer the variable changed for. `0` for system variables |
+| `channel`  | The channel of the peer the variable changed for. `-1` for metadata or system variables |
+| `variable` | The name of the changed variable                             |
+| `value`    | The new value                                                |
+| `metadata` | Name of the peer; room, category and role information        |
+
+##### flowVariableEvent
+
+```c++
+void flowVariableEvent(const std::string &flowId, const std::string &variable, const PVariable &value)
+```
+
+`flowVariableEvent` is called on any flow variable update within the flow the notified node is in. To receive flow variable events, you need to subscribe them calling `subscribeFlow()` (can already be called within `init`).
+
+###### Parameters
+
+| Parameter  | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `flowId`   | The ID of the flow. As the flow ID already is known this is redundant information |
+| `variable` | The name of the flow variable                                |
+| `value`    | The new value                                                |
+
+##### globalVariableEvent
+
+```c++
+void globalVariableEvent(const std::string &variable, const PVariable &value)
+```
+
+`globalVariableEvent` is called on any Node-BLUE global variable update. To receive global variable events, you need to subscribe them calling `subscribeGlobal()` (can already be called within `init`).
+
+###### Parameters
+
+| Parameter  | Description                     |
+| ---------- | ------------------------------- |
+| `variable` | The name of the global variable |
+| `value`    | The new value                   |
+
+##### homegearEvent
+
+```c++
+void homegearEvent(const std::string &type, const PArray &data)
+```
+
+This is a "catch all" event handler. Every event handled by the Node-BLUE process triggers a call to this method. Use this method only when really required. To receive these events, you need to subscribe them by calling `subscribeHomegearEvents()`.
+
+###### Parameters
+
+| Parameter | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `type`    | The type of event: `deviceVariableEvent`, `metadataVariableEvent`, `systemVariableEvent`, `flowVariableEvent`, `globalVariableEvent`, `variableProfileStateChanged`, `uiNotificationCreated`, `uiNotificationRemoved`, `uiNotificationAction`, `newDevices`, `deleteDevices` or `updateDevice`. |
+| `data`    | The event-specific data.                                     |
+
+##### statusEvent
+
+```c++
+void statusEvent(const std::string &nodeId, const PVariable &status)
+```
+
+When a node [sets it's status](node_status.md) a status event is triggered and `statusEvent` is called for all subscribed nodes. You can subscribe for status events by calling `subscribeStatusEvents()` (can already be called within `init`).
+
+###### Parameters
+
+| Parameter | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `nodeId`  | The ID of the node the status is updated for (not the node triggering the status update). |
+| `status`  | The [status object](node_status.md#status-object) |
+
+##### errorEvent
+
+```c++
+bool errorEvent(const std::string &nodeId, int32_t level, const PVariable &error)
+```
+
+The method `errorEvent` is called for all subscribed nodes whenever a node logs an error or warning. You can subscribe for error events by calling `subscribeErrorEvents(bool catchConfigurationNodeErrors, bool hasScope, bool ignoreCaught)` (can already be called within `init`).
+
+###### Parameters
+
+| Parameter | Description                                                  |
+| --------- | ------------------------------------------------------------ |
+| `nodeId`  | The ID of the node logging the error                         |
+| `level`   | `10` for critical, `20` for error, `30` for warning (Homegear's log level times 10) |
+| `error`   | The error object containing information about the node and the error message |
+

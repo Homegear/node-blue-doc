@@ -48,7 +48,7 @@ Add the following content:
 
 This tells the runtime the name of the module and what node files the module contains. `maxThreadCounts` is needed only, when the node starts new threads and is relevant to calculate the number of nodes that can run within one process before reaching the thread limit.
 
-For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging).
+For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging.md).
 
 #### :fa-file: lower-case.php
 
@@ -73,7 +73,7 @@ The node is a PHP class derived from `HomegearNodeBase`. This type of node is ca
 
 Within `input`, the node changes the payload to lower case, then calls the `output` function to pass the message on in the flow.
 
-For more information about the runtime part of the node, see here: [simple PHP](php_simple_code_files), [stateful PHP](php_stateful_code_files).
+For more information about the runtime part of the node, see here: [simple PHP](php_simple_code_files.md), [stateful PHP](php_stateful_code_files.md).
 
 #### :fa-file: lower-case.html
 
@@ -114,7 +114,7 @@ A node’s HTML file provides the following things:
 
 In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
 
-For more information about the editor part of the node, see [here](html_file).
+For more information about the editor part of the node, see [here](html_file.md).
 
 ### Testing your PHP node in Node-BLUE
 
@@ -233,7 +233,7 @@ This tells the runtime the name of the module and what node files the module con
 !!! note
     In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as JavaScript nodes don't start threads.
 
-For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging).
+For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging.md).
 
 #### :fa-file: lower-case.js
 
@@ -266,7 +266,7 @@ Finally, the `LowerCaseNode` function is registered with the runtime using the n
 
 If the node has any external module dependencies, they must be included in the `dependencies` section of its `package.json` file.
 
-For more information about the runtime part of the node, see [here](javascript_code_files).
+For more information about the runtime part of the node, see [here](javascript_code_files.md).
 
 #### :fa-file: lower-case.html
 
@@ -307,7 +307,7 @@ A node’s HTML file provides the following things:
 
 In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
 
-For more information about the editor part of the node, see [here](html_file).
+For more information about the editor part of the node, see [here](html_file.md).
 
 ### Testing your JavaScript node in Node-BLUE
 
@@ -477,7 +477,7 @@ This tells the runtime the name of the module and what node files the module con
 !!! note
     In contrast to PHP and C++ nodes no `maxThreadCounts` property is needed as Python nodes run in a seperate process.
 
-For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging).
+For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging.md).
 
 #### :fa-file: lower-case.py
 
@@ -561,7 +561,7 @@ Whenever a message arrives, the `nodeInput` function is executed. Three paramete
 
 Within `input`, the node changes the payload to lower case, then calls the `nodeOutput` function to pass the message on in the flow.
 
-For more information about the runtime part of the node, see [here](python_code_files).
+For more information about the runtime part of the node, see [here](python_code_files.md).
 
 #### :fa-file: lower-case.html
 
@@ -602,7 +602,7 @@ A node’s HTML file provides the following things:
 
 In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
 
-For more information about the editor part of the node, see [here](html_file).
+For more information about the editor part of the node, see [here](html_file.md).
 
 ### Testing your Python node in Node-BLUE
 
@@ -725,7 +725,7 @@ Add the following content:
 
 This tells the runtime the name of the module and what node files the module contains. `maxThreadCounts` is needed only, when the node starts new threads and is relevant to calculate the number of nodes that can run within one process before reaching the thread limit.
 
-For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging).
+For more information about how to package your node, including requirements on naming and other properties that should be set before publishing your node, refer to the [packaging guide](packaging.md).
 
 #### :fa-file: LowerCase.h
 
@@ -807,7 +807,7 @@ The node itself is implemented as a class `LowerCase` derived from `Flows::INode
 
 In this method the payload is changed to lower case. Then `output()` is called to pass the message on in the flow.
 
-For more information about the runtime part of the node, see [here](cpp_code_files).
+For more information about the runtime part of the node, see [here](cpp_code_files.md).
 
 #### :fa-file: CMakeLists.txt
 
@@ -861,7 +861,7 @@ A node’s HTML file provides the following things:
 
 In this example, the node has a single editable property, `name`. Whilst not required, there is a widely used convention to this property to help distinguish between multiple instances of a node in a single flow.
 
-For more information about the editor part of the node, see [here](html_file).
+For more information about the editor part of the node, see [here](html_file.md).
 
 ### Compiling your C++ node
 
