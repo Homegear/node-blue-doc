@@ -369,6 +369,8 @@ The following variables can be accessed from within you node class:
 
 ### Callable methods
 
+The following methods are implemented by the base class and can be called from your node.
+
 #### Events
 
 ##### subscribePeer
