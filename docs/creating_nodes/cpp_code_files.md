@@ -109,6 +109,14 @@ If the node has more than one input, the input the message arrived at can be rea
 
 The log message is written to Homegear's flows log file. Warnings and errors also trigger `Catch` nodes and - if not handled by a `Catch` node - are written to debug tabs of connected frontends.
 
+### Frontent log
+
+You can also log messages to the editor's event log only by calling `frontendEventLog(const std::string &message)`.
+
+```c++
+frontendEventLog("My log message");
+```
+
 ## Calling Homegear RPC methods
 
 Homegear RPC methods can be called with `invoke`:
@@ -136,6 +144,19 @@ output(0, message);
 The first parameter is the index of the output, the second parameter is the message to send. Note that `message` must be a `Struct` and requires at least the entry `payload`.
 
 If the node is sending a message in response to having received one,  it  should reuse the received message rather than create a new message object. This ensures existing properties on the message are preserved for the rest of the flow.
+
+### Synchronous sending
+
+By default messages are sent asynchronous. If you want to send them synchronous, set the third parameter to `output` to `true`:
+
+```c++
+//Synchronous sending
+Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+message->structValue->emplace("payload", std::make_shared<Flows::Variable>("Synchronous sending."));
+output(0, message, true);
+```
+
+Now Node-BLUE waits for each node path to finish before the next output is executed and causes all outputs of all following nodes to be executed in sequence. Please note that  the synchronous sequence is broken by PHP nodes. It works for the PHP node itself but not for nodes following it. Link nodes also break synchronous output, but the output is synchronous up to the link node.
 
 ## Setting status
 
@@ -198,6 +219,64 @@ All comparison operators are implemented for `Flows::Variable`. It can also be e
 ### Printing
 
 You can call `print` to get a String representation of the value.
+
+## Providing RPC methods callable by other nodes
+
+You can implement your own RPC methods in your node that can be called by other nodes. This is especially useful when providing a shared connection in a configuration node that should be used by other nodes.
+
+### Implementing the RPC method
+
+The RPC method is just a normal method within your node:
+
+```c++
+//Header file
+Flows::PVariable myRpcMethod(const Flows::PArray& parameters);
+
+//Source file
+Flows::PVariable MyNode::myRpcMethod(const Flows::PArray &parameters) {
+  try {
+    //Check parameters for validity
+
+    //Do something
+    
+    //You can also return a value
+    return std::make_shared<Flows::Variable>();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  //Always return -32500 for application errors
+  return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+```
+
+This method needs to be added to `_localRpcMethods` which is provided by the base class:
+
+```c++
+_localRpcMethods.emplace("myRpcMethod", std::bind(&MyNode::myRpcMethod, this, std::placeholders::_1));
+```
+
+That's it. Now this method can be called. You can test this from your shell with:
+
+```bash
+homegear -e rc 'print_v($hg->invokeNodeMethod("ID of your node", "myRpcMethod", ["my parameter"]))'
+```
+
+### Calling the RPC method
+
+The RPC method can be called from other nodes using [`invokeNodeMethod`](#invokenodemethod).
+
+```c++
+/*
+ * The first parameter is the node ID to call the method on.
+ * The second parameter is the method's name.
+ * The third parameter are the parameters.
+ * The fourth parameter should be set to false if you don't need the return value. This increases performance.
+ */
+auto parameters = std::make_shared<Flows::Array>();
+parameters->emplace_back(std::make_shared<Flows::Variable>("my parameter"));
+auto result = invokeNodeMethod(myNodeId, 'myRpcMethod', parameters, true);
+```
 
 ## Flows::NodeInfo
 
@@ -290,7 +369,199 @@ The following variables can be accessed from within you node class:
 
 ### Callable methods
 
-TODO
+#### Events
+
+##### subscribePeer
+
+```c++
+void subscribePeer(uint64_t peerId, int32_t channel = -1, const std::string &variable = "")
+```
+
+Call this method to enable receiving variable updates for peers with [`variableEvent`](#variableevent). This method can be called in `init`.
+
+###### Parameters
+
+| Parameter  | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `peerId`   | The ID of the peer to receive updates for                    |
+| `channel`  | The channel of the peer to receive updates for. If not specified all updates for this peer are received. |
+| `variable` | The variable name to receive updates for. If not specified all updates for the specified channel are received. |
+
+##### unsubscribePeer
+
+```c++
+void unsubscribePeer(uint64_t peerId, int32_t channel = -1, const std::string &variable = "")
+```
+
+Call this method to unsubscribe from previously subscribed events again. You need to pass the same parameters as to `subscribePeer`. You don't need to call this method for cleanup.
+
+##### subscribeFlow
+
+```c++
+void subscribeFlow()
+```
+
+Call this method to enable receiving flow variable updates with [`flowVariableEvent`](#flowVariableevent). This method can be called in `init`.
+
+##### unsubscribeFlow
+
+```c++
+void unsubscribeFlow()
+```
+
+Call this method to unsubscribe from previously subscribed events again. You don't need to call this method for cleanup.
+
+##### subscribeGlobal
+
+```c++
+void subscribeFlow()
+```
+
+Call this method to enable receiving Node-BLUE global variable updates with [`globalVariableEvent`](#globalvariableevent). This method can be called in `init`.
+
+##### unsubscribeGlobal
+
+```c++
+void unsubscribeFlow()
+```
+
+Call this method to unsubscribe from previously subscribed events again. You don't need to call this method for cleanup.
+
+##### subscribeHomegearEvents
+
+```c++
+void subscribeHomegearEvents()
+```
+
+Call this method to enable receiving Homegear events with [`homegearEvent`](#homegearevent). This method can be called in `init`.
+
+##### unsubscribeHomegearEvents
+
+```c++
+void unsubscribeHomegearEvents()
+```
+
+Call this method to unsubscribe from previously subscribed events again. You don't need to call this method for cleanup.
+
+##### subscribeStatusEvents
+
+```c++
+void subscribeStatusEvents()
+```
+
+Call this method to enable receiving status update events with [`statusEvent`](#statusevent). This method can be called in `init`.
+
+##### unsubscribeStatusEvents
+
+```c++
+void unsubscribeStatusEvents()
+```
+
+Call this method to unsubscribe from previously subscribed events again. You don't need to call this method for cleanup.
+
+##### subscribeErrorEvents
+
+```c++
+void subscribeStatusEvents()
+```
+
+Call this method to enable receiving error events with [`errorEvent`](#errorevent). This method can be called in `init`.
+
+##### unsubscribeErrorEvents
+
+```c++
+void unsubscribeErrorEvents()
+```
+
+Call this method to unsubscribe from previously subscribed events again. You don't need to call this method for cleanup.
+
+##### nodeEvent
+
+```c++
+void nodeEvent(const std::string &topic, const PVariable &value, bool retain)
+```
+
+Primarily `nodeEvent` is used to set the status of a node. See [here](node_status.md).
+
+You can also send events to your node. The debug node for example is doing that. In the HTML file call `RED.comms.subscribe("my-topic", function(value) {});` and `RED.comms.unsubscribe("my-topic ", function(value) {})`. Then with `nodeEvent("my-topic", my-data)`  you can send something to the node.
+
+#### Error handling
+
+##### log
+
+```c++
+void log(int32_t logLevel, const std::string &message)
+```
+
+See "[handling errors and logging events](#handling-errors-and-logging-events)".
+
+##### frontendEventLog
+
+```c++
+void frontendEventLog(const std::string &message)
+```
+
+See "[handling errors and logging events](#handling-errors-and-logging-events)".
+
+#### Context
+
+```c++
+PVariable getNodeData(const std::string &key)
+    
+void setNodeData(const std::string &key, const PVariable &value)
+    
+PVariable getFlowData(const std::string &key)
+    
+void setFlowData(const std::string &key, const PVariable &value)
+    
+PVariable getGlobalData(const std::string &key)
+    
+void setGlobalData(const std::string &key, const PVariable &value)
+```
+
+See section "[node context](node_context.md)" for more information.
+
+#### Message processing / communication / RPC
+
+##### getConfigParameter
+
+```c++
+PVariable getConfigParameter(const std::string &nodeId, const std::string &name)
+```
+
+See "[configuration nodes](configuration_nodes.md#c)".
+
+##### invoke
+
+```c++
+PVariable invoke(const std::string &methodName, const PArray &parameters)
+```
+
+See  "[calling Homegear RPC methods](#calling-homegear-rpc-methods)".
+
+##### invokeNodeMethod
+
+```c++
+PVariable invokeNodeMethod(const std::string &nodeId, const std::string &methodName, const PArray &parameters, bool wait)
+```
+
+With `invokeNodeMethod` you can call RPC methods provided by other nodes. See "[providing RPC methods callable by other nodes](#providing-rpc-methods-callable-by-other-nodes)".
+
+##### output
+
+```c++
+void output(uint32_t outputIndex, const PVariable &message, bool synchronous = false)
+```
+
+See  "[sending messages](#sending-messages)".
+
+##### setInternalMessage
+
+```c++
+void setInternalMessage(const PVariable &message)
+```
+
+Using this method you can attach undeletable data to the message object. Even if the message object is newly created within a node, the internal message is attached again to the message.
 
 ### Overridable methods
 
@@ -309,10 +580,26 @@ See section [initialization and deinitialization](node_initialization_and_deinit
 
 #### Event methods
 
+##### input
+
+```c++
+virtual void input(const PNodeInfo &nodeInfo, uint32_t index, const PVariable &message)
+```
+
+`input` is called every time a message arrives. It is protected by a mutex, so you don't need to worry about parallel calls to this method.
+
+###### Parameters
+
+| Parameter  | Description                                   |
+| ---------- | --------------------------------------------- |
+| `nodeInfo` | See [here](#flowsnodeinfo)                    |
+| `index`    | The index of the input the message arrived at |
+| `message`  | The message object                            |
+
 ##### variableEvent
 
 ```c++
-void variableEvent(const std::string &source,
+virtual void variableEvent(const std::string &source,
                    uint64_t peerId,
                    int32_t channel,
                    const std::string &variable,
@@ -320,7 +607,7 @@ void variableEvent(const std::string &source,
                    const PVariable &metadata)
 ```
 
-This method is called on any variable update to system variables, metadata variables and subscribed peer variables. To get peer variable updates, you need to subscribe them by calling `subscribePeer(uint64_t peerId, int32_t channel, const std::string &variable)`. As `subscribePeer` doesn't require inter-process or inter-node communication, it already can be called within `init`.
+This method is called on any variable update to system variables, metadata variables and subscribed peer variables. To get peer variable updates, you need to subscribe them by calling [`subscribePeer`](#subscribepeer). As `subscribePeer` doesn't require inter-process or inter-node communication, it already can be called within `init`.
 
 !!! note
     System variables and metadata variables don't require subscription.
@@ -339,7 +626,7 @@ This method is called on any variable update to system variables, metadata varia
 ##### flowVariableEvent
 
 ```c++
-void flowVariableEvent(const std::string &flowId, const std::string &variable, const PVariable &value)
+virtual void flowVariableEvent(const std::string &flowId, const std::string &variable, const PVariable &value)
 ```
 
 `flowVariableEvent` is called on any flow variable update within the flow the notified node is in. To receive flow variable events, you need to subscribe them calling `subscribeFlow()` (can already be called within `init`).
@@ -355,7 +642,7 @@ void flowVariableEvent(const std::string &flowId, const std::string &variable, c
 ##### globalVariableEvent
 
 ```c++
-void globalVariableEvent(const std::string &variable, const PVariable &value)
+virtual void globalVariableEvent(const std::string &variable, const PVariable &value)
 ```
 
 `globalVariableEvent` is called on any Node-BLUE global variable update. To receive global variable events, you need to subscribe them calling `subscribeGlobal()` (can already be called within `init`).
@@ -370,7 +657,7 @@ void globalVariableEvent(const std::string &variable, const PVariable &value)
 ##### homegearEvent
 
 ```c++
-void homegearEvent(const std::string &type, const PArray &data)
+virtual void homegearEvent(const std::string &type, const PArray &data)
 ```
 
 This is a "catch all" event handler. Every event handled by the Node-BLUE process triggers a call to this method. Use this method only when really required. To receive these events, you need to subscribe them by calling `subscribeHomegearEvents()`.
@@ -385,7 +672,7 @@ This is a "catch all" event handler. Every event handled by the Node-BLUE proces
 ##### statusEvent
 
 ```c++
-void statusEvent(const std::string &nodeId, const PVariable &status)
+virtual void statusEvent(const std::string &nodeId, const PVariable &status)
 ```
 
 When a node [sets it's status](node_status.md) a status event is triggered and `statusEvent` is called for all subscribed nodes. You can subscribe for status events by calling `subscribeStatusEvents()` (can already be called within `init`).
@@ -400,7 +687,7 @@ When a node [sets it's status](node_status.md) a status event is triggered and `
 ##### errorEvent
 
 ```c++
-bool errorEvent(const std::string &nodeId, int32_t level, const PVariable &error)
+virtual bool errorEvent(const std::string &nodeId, int32_t level, const PVariable &error)
 ```
 
 The method `errorEvent` is called for all subscribed nodes whenever a node logs an error or warning. You can subscribe for error events by calling `subscribeErrorEvents(bool catchConfigurationNodeErrors, bool hasScope, bool ignoreCaught)` (can already be called within `init`).
@@ -413,3 +700,38 @@ The method `errorEvent` is called for all subscribed nodes whenever a node logs 
 | `level`   | `10` for critical, `20` for error, `30` for warning (Homegear's log level times 10) |
 | `error`   | The error object containing information about the node and the error message |
 
+#### Other methods
+
+##### getNodeVariable
+
+```c++
+virtual PVariable getNodeVariable(const std::string &variable)
+```
+
+When this method is overridden, it is called whenever the [RPC method `getNodeVariable`](https://ref.homegear.eu/rpc.html#getNodeVariable) is called for the implementing node.
+
+##### setNodeVariable
+
+```c++
+virtual void setNodeVariable(const std::string &variable, const PVariable &value)
+```
+
+When this method is overridden, it is called whenever the [RPC method `setNodeVariable`](https://ref.homegear.eu/rpc.html#setNodeVariable) is called for the implementing node.
+
+##### getConfigParameterIncoming
+
+```c++
+virtual PVariable getConfigParameterIncoming(const std::string &name)
+```
+
+See "[configuration nodes](configuration_nodes.md#c)".
+
+##### invokeLocal
+
+```c++
+virtual PVariable invokeLocal(const std::string &methodName, const PArray &parameters)
+```
+
+Calls a RPC method implemented in the current class. This method can be overridden, but the default implementation should be fine in most cases. See 
+
+"[providing RPC methods callable by other nodes](#providing-rpc-methods-callable-by-other-nodes)".

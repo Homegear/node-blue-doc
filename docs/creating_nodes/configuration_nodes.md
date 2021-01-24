@@ -166,4 +166,124 @@ module.exports = function(RED) {
 
 ## C++
 
-TODO
+### Configuration node
+
+#### :fa-file: remote-server.h
+
+C++ configuration nodes are implemented the same way as any other node. There is just one more method required to override: `getConfigParamaterIncoming`. The header and source file below show a fully working implementation of a configuration node:
+
+```c++
+#ifndef MYNODE_H_
+#define MYNODE_H_
+
+#include <homegear-node/INode.h>
+
+namespace MyNode {
+
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override = default;
+
+  bool init(const Flows::PNodeInfo &info) override;
+
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
+ private:
+  Flows::PVariable _settings;
+};
+
+}
+#endif
+```
+
+#### :fa-file: remote-server.cpp
+
+```c++
+#include "MyNode.h"
+
+namespace MyNode {
+
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected)
+    : Flows::INode(path, type, frontendConnected) {
+}
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  _settings = info->info;
+
+  return true;
+}
+
+Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
+  try {
+    auto settingsIterator = _settings->structValue->find(name);
+    if (settingsIterator != _settings->structValue->end()) return settingsIterator->second;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return std::make_shared<Flows::Variable>();
+}
+
+}
+```
+
+### Client node
+
+#### :fa-file: my-node.cpp
+
+To request the configuration parameters from the configuration node, call `getConfigParameter`. The configuration parameters should be retrieved in `configNodesStarted`.
+
+```c++
+auto data = getConfigParameter(remoteServerNodeId, "my-setting");
+```
+
+### Providing shared connection
+
+When providing a shared connection it is also necessary to establish bidirectional communication between the configuration node and the node using it. For this you can use the method [`invokeNodeMethod`](https://ref.homegear.eu/php.html#HomegearNodeBaseinvokeNodeMethod):
+
+```c++
+/*
+ * The first parameter is the node ID to call the method on.
+ * The second parameter is the method's name.
+ * The third parameter are the parameters.
+ * The fourth parameter should be set to false if you don't need the return value. This increases performance.
+ */
+auto parameters = std::make_shared<Flows::Array>();
+parameters->emplace_back(std::make_shared<Flows::Variable>(_id));
+auto result = invokeNodeMethod(myServerNodeId, 'registerNode', parameters, true);
+```
+
+This calls the method `registerNode`. An example implementation might look like this:
+
+```c++
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected)
+    : Flows::INode(path, type, frontendConnected) {
+    //Local RPC methods is defined in Flows::INode
+    _localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
+}
+
+//Register node is called by invokeLocal() implemented by Flows::INode
+Flows::PVariable MyNode::registerNode(const Flows::PArray &parameters) {
+  try {
+    if (parameters->size() != 1) {
+        return Flows::Variable::createError(-1,
+                                            "Method expects exactly one parameter. " +
+                                            std::to_string(parameters->size()) + " given.");
+    }
+    if (parameters->at(0)->type != Flows::VariableType::tString ||
+        parameters->at(0)->stringValue.empty()) {
+        return Flows::Variable::createError(-1, "Parameter is not of type string.");
+    }
+
+    //Do something
+
+    return std::make_shared<Flows::Variable>();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  //Always return -32500 on application errors.
+  return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+```
+
