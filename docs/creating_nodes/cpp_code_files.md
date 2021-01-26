@@ -668,7 +668,7 @@ This is a "catch all" event handler. Every event handled by the Node-BLUE proces
 
 | Parameter | Description                                                  |
 | --------- | ------------------------------------------------------------ |
-| `type`    | The type of event: `deviceVariableEvent`, `metadataVariableEvent`, `systemVariableEvent`, `flowVariableEvent`, `globalVariableEvent`, `variableProfileStateChanged`, `uiNotificationCreated`, `uiNotificationRemoved`, `uiNotificationAction`, `newDevices`, `deleteDevices` or `updateDevice`. |
+| `type`    | The type of event: `deviceVariableEvent`, `metadataVariableEvent`, `systemVariableEvent`, `flowVariableEvent`, `globalVariableEvent`, `variableProfileStateChanged`, `uiNotificationCreated`, `uiNotificationRemoved`, `uiNotificationAction`, `newDevices`, `deleteDevices`, `updateDevice` or `rawPacketEvent`. |
 | `data`    | The event-specific data.                                     |
 
 ##### statusEvent
