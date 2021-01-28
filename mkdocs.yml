@@ -40,6 +40,7 @@ nav:
     - creating_nodes/node_status.md
     - creating_nodes/configuration_nodes.md
     - creating_nodes/node_help_style_guide.md
+    - creating_nodes/internationalization.md
 plugins:
   - search
 markdown_extensions:
