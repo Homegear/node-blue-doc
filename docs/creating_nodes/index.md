@@ -27,6 +27,7 @@ Please click on the sections you want to read:
 * [Node status](node_status.md)
 * [Configuration nodes](configuration_nodes.md)
 * [Help style guilde](node_help_style_guide.md)
+* [Adding examples](examples.md)
 * [Internationalization](internationalization.md)
 
 ## General guidance

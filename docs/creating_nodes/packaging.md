@@ -17,6 +17,9 @@ Here is a typical directory structure for a node package:
 ├── package.json
 ├── README.md
 └── sample
+    ├── examples
+    │   ├── example-1.json
+    │   └── example-2.json
     ├── icons
     │   └── my-icon.svg
     ├── locales
