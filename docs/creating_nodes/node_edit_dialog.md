@@ -85,7 +85,7 @@ In some cases, Node-BLUE provides the `TypedInput` widget as an alternative. It 
 
 For example, if a property could be a String, number or boolean. Or if the property is being used to identify message, flow or global context property.
 
-Full API documentation for the `TypedInput` widget, including a list of the available built-in types is available here (TODO).
+Full API documentation for the `TypedInput` widget, including a list of the available built-in types is available [here](editor_ui_widgets.md).
 
 ### Plain HTML input
 

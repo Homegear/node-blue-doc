@@ -24,6 +24,7 @@ Please click on the sections you want to read:
 * [Node credentials](node_credentials.md)
 * [Node appearance](node_appearance.md)
 * [Node edit dialog](node_edit_dialog.md)
+* [Editor UI widgets](editor_ui_widgets.md)
 * [Storing context](node_context.md)
 * [Node status](node_status.md)
 * [Configuration nodes](configuration_nodes.md)
