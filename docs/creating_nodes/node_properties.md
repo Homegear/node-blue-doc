@@ -87,7 +87,7 @@ When the edit dialog is opened, the editor populates the dialog with the edit te
 
 For each of the properties in the `defaults` array, it looks for an `<input>` element with an `id` set to `node-input-<propertyname>`, or `node-config-input-<propertyname>` in the case of Configuration nodes. This input is then automatically populated with the current value of the property. When the edit dialog is closed, the property takes whatever value is in the input.
 
-More information about the edit dialog is available [here](edit_dialog.md).
+More information about the edit dialog is available [here](node_edit_dialog.md).
 
 ### Custom edit behavior
 

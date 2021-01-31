@@ -73,4 +73,4 @@ More information about the edit dialog is available [here](node_edit_dialog.md).
 
 When a node is selected, its help text is displayed in the info tab. This should provide a meaningful description of what the node does. It should identify what properties it sets on outgoing messages and what properties can be set on incoming messages.
 
-The help text is provided with the localization JSON file. You can find more information [here](help_style_guide.md).
+The help text is provided with the localization JSON file. You can find more information [here](node_help_style_guide.md).

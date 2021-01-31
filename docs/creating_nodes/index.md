@@ -16,6 +16,7 @@ Please click on the sections you want to read:
 * [JavaScript code files](javascript_code_files.md)
 * [Code files of simple PHP nodes](php_simple_code_files.md)
 * [Code files of stateful PHP nodes](php_stateful_code_files.md)
+* [Code files of Python nodes](python_code_files.md)
 * [Code files of C++ nodes](cpp_code_files.md)
 * [HTML file](html_file.md)
 * [Packaging](packaging.md)

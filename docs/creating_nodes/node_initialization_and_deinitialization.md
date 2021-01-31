@@ -35,10 +35,11 @@ See the following table on the availability of the initialization/deinitializati
 | **PHP (simple)**   | no     | no      | no                   | no                | no      | no            |
 | **PHP (stateful)** | yes    | yes     | yes                  | yes               | yes     | yes           |
 | **JavaScript**     | no[^1] | no      | no                   | no                | no[^2]  | no            |
-| **Python**         | no     | yes[^3] | no                   | yes               | yes[^4] | no            |
+| **Python**         | no     | yes[^3] | no                   | yes               | yes[^4] | yes[^5]       |
 | **C++**            | yes    | yes     | yes                  | yes               | yes     | yes           |
 
 [^1]: JavaScript nodes are started and available before `init` is called on nodes of other languages.
 [^2]: JavaScript nodes are stopped after all nodes written in other languages are stopped.
 [^3]: The Python script is started in `start`.
 [^4]: Signal 15 is sent to the Python script in `stop`.
+[^5]: Node-BLUE waits until the process exits.

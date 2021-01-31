@@ -22,6 +22,7 @@ nav:
     - getting_started/index.md
     - getting_started/installation.md
     - getting_started/configuration.md
+    - getting_started/first_start.md
   - Creating Nodes:
     - creating_nodes/index.md
     - creating_nodes/first_node.md
@@ -29,6 +30,7 @@ nav:
     - creating_nodes/javascript_code_files.md
     - creating_nodes/php_simple_code_files.md
     - creating_nodes/php_stateful_code_files.md
+    - creating_nodes/python_code_files.md
     - creating_nodes/cpp_code_files.md
     - creating_nodes/html_file.md
     - creating_nodes/packaging.md
