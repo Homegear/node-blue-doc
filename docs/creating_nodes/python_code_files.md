@@ -42,7 +42,7 @@ hg = Homegear(socketPath, eventHandler, nodeId, nodeInput)
 
 Now we just need to make sure, the Python process keeps running. The recommended way to do so is to check if the Homegear object is still connected to Homegear. Our full Python node template then looks like this:
 
-### :fa-file: Python node template
+### Python node template
 
 ```python
 from homegear import Homegear
@@ -67,6 +67,9 @@ hg = Homegear(socketPath, eventHandler, nodeId, nodeInput)
 while hg.connected():
 	time.sleep(1)
 ```
+
+!!! note
+    See [Using asyncio for thread synchronization](#using-asyncio-for-thread-synchronization) for a template with thread synchronization.
 
 ## Start and stop
 
@@ -146,7 +149,25 @@ We recommend to use `asyncio`. See the section about [asyncio](#using-asyncio-fo
 
 ## Handling errors and logging events
 
-TODO
+If the node encounters an error whilst handling the message or if it wants to write something to the log file, it should call the `nodeLog` method:
+
+```python
+logLevel = 2
+message = "Something really bad happened"
+hg.nodeLog(logLevel, message)
+```
+
+Available log levels are:
+
+| Log level | Description |
+| --------- | ----------- |
+| 1         | Critical    |
+| 2         | Error       |
+| 3         | Warning     |
+| 4         | Info        |
+| 5         | Debug       |
+
+The log message is written to Homegear's flows log file. Warnings and errors also trigger `Catch` nodes and - if not handled by a `Catch` node - are written to debug tabs of connected frontends.
 
 ## Calling Homegear RPC methods
 
@@ -178,8 +199,6 @@ Whilst running, a node is able to share status information with the editor UI. T
 ```python
 hg.nodeEvent('status/' + nodeId, {"text": "Feeling great", "shape": "dot", "fill": "green"})
 ```
-
-TODO
 
 ## Using asyncio for thread synchronization
 
