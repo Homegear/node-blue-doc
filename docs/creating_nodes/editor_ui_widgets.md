@@ -4,10 +4,10 @@ This section is largely citing the Node-RED documentation.
 
 A set of jQuery widgets are available that can be used within a node’s edit template.
 
-- [`TypedInput`](#TypedInput) - a replacement for a regular `<input>` that allows the type of the value to be chosen, including options for string, number and boolean. Used extensively in the core Node-BLUE nodes.
-- [`EditableList`](#EditableList) - an editable list where the elements can be complex forms in their own right. Used by the core `Switch` and `Change` nodes.
-- [`SearchBox`](#SearchBox) - an enhanced `<input>` for common usage around Search UX.
-- [`TreeList`](#TreeList) - a list to display tree-structured data.
+- [`TypedInput`](#typedinput) - a replacement for a regular `<input>` that allows the type of the value to be chosen, including options for string, number and boolean. Used extensively in the core Node-BLUE nodes.
+- [`EditableList`](#editablelist) - an editable list where the elements can be complex forms in their own right. Used by the core `Switch` and `Change` nodes.
+- [`SearchBox`](#searchbox) - an enhanced `<input>` for common usage around Search UX.
+- [`TreeList`](#treelist) - a list to display tree-structured data.
 
 ## TypedInput
 
