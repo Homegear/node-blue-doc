@@ -627,7 +627,7 @@ or select `Restart Node-BLUE` from the Node-BLUE UI's menu.
 
 You can do unit tests with the help of Homegear's RPC methods in combination with the node `unit-test-helper`. This special node makes Homegear save all arriving messages.
 
-Using the RPC methods and the `unit-test-helper` node you can create test flows, and then assert that the output is working as expected. For example, to add a unit test to the lower-case node you can add a `test` folder to your node module package containing a file called `lower-case_spec.php`. Placing the file here with this filename enables running automatic unit tests.
+Using the RPC methods and the `unit-test-helper` node you can create test flows, and then assert that the output is working as expected. For example, to add a unit test to the lower-case node you can add a `test` folder to your node module package containing a file called `lower-case_spec.py`. Placing the file here with this filename enables running automatic unit tests.
 
 #### :fa-file: test/lower-case_spec.py
 
@@ -896,6 +896,6 @@ homegear -e fr
 
 or select `Restart Node-BLUE` from the Node-BLUE UI's menu.
 
-### Unit testing with Python
+### Unit testing with C++
 
 Unit testing can be done with C++ by using the same methods as with the other programming languages. It is recommended though to use a scripting language.
