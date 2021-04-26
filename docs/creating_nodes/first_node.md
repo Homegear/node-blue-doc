@@ -625,59 +625,82 @@ or select `Restart Node-BLUE` from the Node-BLUE UI's menu.
 
 ### Unit testing with Python
 
-You can do unit tests with the help of Homegear's RPC methods in combination with the node `unit-test-helper`. This special node makes Homegear save all arriving messages.
+You can do unit tests with the help of the [unit testing framework](https://docs.python.org/3/library/unittest.html) and Homegear's RPC methods in combination with the node `unit-test-helper`. This special node makes Homegear save all arriving messages.
 
 Using the RPC methods and the `unit-test-helper` node you can create test flows, and then assert that the output is working as expected. For example, to add a unit test to the lower-case node you can add a `test` folder to your node module package containing a file called `lower-case_spec.py`. Placing the file here with this filename enables running automatic unit tests.
+
+Create for each test case a new class. In this class you can create a `setUpClass()` method, which is called once at the beginning of the test case, and a `tearDownClass()` method, which is called once at the end of the test case. Those classes must be decorated as a `@classmethod`.
+Also create a `setUp()` method, which is called befor each test, and a `tearDown()` method, which is called after each test even if the test raised an exception.
+Then write your test methods for this test case. Those methods must start with `test`.
 
 #### :fa-file: test/lower-case_spec.py
 
 ```python
 from homegear import Homegear
-import sys
+import unittest
 import time
 
-# hg waits until the connection is established (but for a maximum of 2 seconds).
-# The socket path is passed in sys.argv[1]
-hg = Homegear(sys.argv[1])
+class ToLowerTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        # hg waits until the connection is established (but for a maximum of 2 seconds).
+        # This is the default path to the socket. If your path changed, put it in here
+        hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-testFlow = [
-    {
-        "id": "n1", # Is replaced by addNodesToFlow below
-        "type": "lower-case",
-        "wires": [
-            [{"id": "n2", "port": 0}] # Output 1 => Input 1
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
+    def setUp(self):
+        testFlow = [
+            {
+                "id": "n1", # Is replaced by addNodesToFlow below
+                "type": "lower-case",
+                "wires": [
+                    [{"id": "n2", "port": 0}] # Output 1 => Input 1
+                ]
+            },
+            {
+                "id": "n2", # Is replaced by addNodesToFlow below
+                "type": "unit-test-helper",
+                "inputs": 1
+            }
         ]
-    },
-    {
-        "id": "n2", # Is replaced by addNodesToFlow below
-        "type": "unit-test-helper",
-        "inputs": 1
-    }
-]
 
-nodeIds = hg.addNodesToFlow("Unit test", "unit-test", testFlow)
-if nodeIds == False:
-    raise SystemError('Error =>  Could not create flow.')
-n1 = nodeIds["n1"] # Get node ID of inserted lower-case node
-n2 = nodeIds["n2"] # Get node ID of inserted helper node
-# Trigger a Node-BLUE restart
-if hg.restartFlows() != True:
-    raise SystemError("Error => Could not restart flows.")
-while not hg.nodeBlueIsReady():
-    # Wait for Node-BLUE to become ready again
-    time.sleep(1)
+        nodeIds = hg.addNodesToFlow("Unit test", "unit-test", testFlow)
+        if nodeIds == False:
+            raise SystemError('Error =>  Could not create flow.')
+        
+        global n1, n2
+        n1 = nodeIds["n1"] # Get node ID of inserted lower-case node
+        n2 = nodeIds["n2"] # Get node ID of inserted helper node
 
-# {{{ Perform the actual tests
-hg.setNodeVariable(n1, "fixedInput0", {"payload": "UpperCase"})
-time.sleep(1) # Wait for asynchronous processing to finish
-# This returns up to the last 10 input values. The latest value is at index 0.
-inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-assert len(inputHistory) == 1, "No message was passed on."
-assert inputHistory[0][1]['payload'] == "uppercase", "Payload is not lower case."
-# }}}
+        # Trigger a Node-BLUE restart
+        if hg.restartFlows() != True:
+            raise SystemError("Error => Could not restart flows.")
+        while not hg.nodeBlueIsReady():
+            # Wait for Node-BLUE to become ready again
+            time.sleep(1)
 
-# Clean up
-hg.removeNodesFromFlow("Unit test", "unit-test")
+    def tearDown(self):
+        # Clean up
+        hg.removeNodesFromFlow("Unit test", "unit-test")
+
+    def test_upperToLowerCase(self):
+        # Perform the actual tests
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": "UpperCase"})
+        time.sleep(1) # Wait for asynchronous processing to finish
+
+        # This returns up to the last 10 input values. The latest value is at index 0.
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertTrue(len(inputHistory) == 1, "No message was passed on.")
+        self.assertEqual(inputHistory[0][1]['payload'], "uppercase", "Payload is not lower case.")
+
+
+if __name__ == '__main__':
+    unittest.main()
+
 ```
 
 These tests check to see that the node is loaded into the runtime correctly, and that it correctly changes the payload to lower case as expected.
@@ -686,6 +709,22 @@ This test file can be executed using:
 
 ```bash
 python3 lower-case_spec.py
+```
+
+If you want more information about the running test, use:
+
+```bash
+python3 lower-case_spec.py -v
+```
+
+If you only want to run one test case, use:
+```bash
+python3 lower-case_spec.py ClassName -v
+```
+
+If you only want to run one specific test, use:
+```bash
+python3 lower-case_spec.py ClassName.test_testName -v
 ```
 
 ## Creating a simple node in C++
