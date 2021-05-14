@@ -629,7 +629,8 @@ You can do unit tests with the help of the [unit testing framework](https://docs
 
 Using the RPC methods and the `unit-test-helper` node you can create test flows, and then assert that the output is working as expected. For example, to add a unit test to the lower-case node you can add a `test` folder to your node module package containing a file called `lower-case_spec.py`. Placing the file here with this filename enables running automatic unit tests.
 
-Create for each test case a new class. In this class you can create a `setUpClass()` method, which is called once at the beginning of the test case, and a `tearDownClass()` method, which is called once at the end of the test case. Those classes must be decorated as a `@classmethod`.
+Create for each test case a new class. If your class starts with `/` you won't be able to call this test case individual.
+In this class you can create a `setUpClass()` method, which is called once at the beginning of the test case, and a `tearDownClass()` method, which is called once at the end of the test case. Those classes must be decorated as a `@classmethod`.
 Also create a `setUp()` method, which is called befor each test, and a `tearDown()` method, which is called after each test even if the test raised an exception.
 Then write your test methods for this test case. Those methods must start with `test`.
 
@@ -638,6 +639,7 @@ Then write your test methods for this test case. Those methods must start with `
 ```python
 from homegear import Homegear
 import unittest
+import sys
 import time
 
 class ToLowerTestCase(unittest.TestCase):
@@ -645,8 +647,12 @@ class ToLowerTestCase(unittest.TestCase):
     def setUpClass(cls):
         global hg
         # hg waits until the connection is established (but for a maximum of 2 seconds).
-        # This is the default path to the socket. If your path changed, put it in here
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            # If there is no socket path, the default path is used
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        
 
     @classmethod
     def tearDownClass(cls):
@@ -699,6 +705,16 @@ class ToLowerTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    # extract socket path from sys.argv
+    global socketPath
+    socketPath = ''
+    if len(sys.argv) > 1:
+        for arg in sys.argv:
+            if arg.startswith("/") and not arg == sys.argv[0]:
+                socketPath = arg
+                sys.argv.remove(arg)
+                break
+
     unittest.main()
 
 ```
@@ -725,6 +741,11 @@ python3 lower-case_spec.py ClassName -v
 If you only want to run one specific test, use:
 ```bash
 python3 lower-case_spec.py ClassName.test_testName -v
+```
+
+To change the socket path, use:
+```bash
+python3 lower-case_spec.py /socket/path ClassName.test_testName -v
 ```
 
 ## Creating a simple node in C++
